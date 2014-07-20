@@ -8,11 +8,14 @@ object PaintShop {
 	val GLOSS = 'G'
     
     def generateBatches(batchSize: Int): Stream[List[PaintType]] = {
-        //val batch = List.fill(batchSize)(GLOSS)
-        Stream.cons(List[PaintType](GLOSS), Stream.cons(List[PaintType](MATTE), Stream()))
+        if (batchSize == 0) Stream()
+        else if (batchSize == 1) Stream.cons(List[PaintType](GLOSS), Stream.cons(List[PaintType](MATTE), Stream()))
+        else {        
+        	val rest = List.fill(batchSize-1)(GLOSS)
+        	generateBatches(batchSize-1)
+        	Stream.cons(GLOSS :: rest, Stream.cons(MATTE :: rest, Stream()))
+        }
     }
-    
-    
 }
 
 class PaintShop(batchSize: Int) {
