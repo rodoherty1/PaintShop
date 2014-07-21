@@ -7,13 +7,12 @@ object PaintShop {
 	val MATTE = 'M'
 	val GLOSS = 'G'
     
-    def generateBatches(batchSize: Int): Stream[List[PaintType]] = {
-        if (batchSize == 0) Stream()
-        else if (batchSize == 1) Stream.cons(List[PaintType](GLOSS), Stream.cons(List[PaintType](MATTE), Stream()))
+    def generateBatches(batchSize: Int): List[List[PaintType]] = {
+        if (batchSize == 0) List()
+        else if (batchSize == 1) List[PaintType](GLOSS) :: List[PaintType](MATTE) :: Nil
         else {        
-        	val rest = List.fill(batchSize-1)(GLOSS)
-        	generateBatches(batchSize-1)
-        	Stream.cons(GLOSS :: rest, Stream.cons(MATTE :: rest, Stream()))
+        	val rest = generateBatches(batchSize-1)
+        	rest.map(b => GLOSS :: b) ::: rest.map(b => MATTE :: b)
         }
     }
 }
@@ -30,7 +29,7 @@ class PaintShop(batchSize: Int) {
             else (orders.forall(order => order.exists({ case (colour, paintType) => batch.contains(paintType)})))
         }
 
-        def findBestBatch(batches: Stream[List[PaintType]]): List[PaintType] = {
+        def findBestBatch(batches: List[List[PaintType]]): List[PaintType] = {
             if (batches.isEmpty) Nil
             else {
                 if (isBatchSuitable(batches.head, orders)) batches.head
