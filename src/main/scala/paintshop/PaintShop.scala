@@ -22,13 +22,12 @@ class PaintShop(batchSize: Int) {
     
     val allBatches = generateBatches(batchSize)
     
+    def isBatchSuitable(batch: List[PaintType], orders: List[CustomerOrder]) : Boolean = {
+        if (batch.length == 0 || orders.isEmpty) false
+        else (orders.forall(order => order.exists({ case (colour, paintType) => batch.contains(paintType)})))
+    }
+    
     def apply(orders: List[CustomerOrder]): List[Char] = {
-
-        def isBatchSuitable(batch: List[PaintType], orders: List[CustomerOrder]) : Boolean = {
-            if (batch.length == 0 || orders.isEmpty) false
-            else (orders.forall(order => order.exists({ case (colour, paintType) => batch.contains(paintType)})))
-        }
-
         def findBestBatch(batches: List[List[PaintType]]): List[PaintType] = {
             if (batches.isEmpty) Nil
             else {

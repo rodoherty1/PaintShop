@@ -18,10 +18,22 @@ class PaintShopTest extends WordSpec with ShouldMatchers {
             new PaintShop(2)(List(Map(1 -> MATTE), Map(2 -> GLOSS))) should be (List(MATTE, GLOSS))
         } 
         
-        "fulfill an order from three customers" in {
-            new PaintShop(5)(List(Map(1 -> MATTE, 3 -> GLOSS, 5-> GLOSS))) should be (List(MATTE, MATTE, GLOSS, MATTE, GLOSS))
+        "fulfill an order from one customer with 5 colours" in {
+            new PaintShop(5)(List(Map(1 -> MATTE, 3 -> GLOSS, 5-> GLOSS))) should be (List(GLOSS, GLOSS, GLOSS, GLOSS, GLOSS))
+        } 
+        
+        "fulfill an order from two customers with 5 colours" in {
+            new PaintShop(5)(List(Map(1 -> MATTE, 3 -> GLOSS, 5-> GLOSS), Map(5->MATTE))) should be (List(GLOSS, GLOSS, GLOSS, GLOSS, MATTE))
+        } 
+        
+        "fulfill an order from three customers with 5 colours" in {
+            new PaintShop(5)(List(Map(1 -> MATTE, 3 -> GLOSS, 5-> GLOSS), Map(2->GLOSS, 3->MATTE, 4-> GLOSS), Map(5->MATTE))) should be (List(GLOSS, GLOSS, GLOSS, GLOSS, MATTE))
         } 
 
+        "determine if a particular batch fulfills a given order" in {
+            new PaintShop(3).isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> MATTE, 2 -> GLOSS, 3-> GLOSS))) should be (true)
+            new PaintShop(3).isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> GLOSS, 2 -> GLOSS, 3-> GLOSS))) should be (false)
+        }
         "generate all combinations of MATTE and GLOSS for batchsize = 1" in {
             generateBatches(1) should have size 2
             generateBatches(1) should contain (List(MATTE))
