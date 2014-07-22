@@ -7,6 +7,7 @@ import paintshop.PaintShop._
 class PaintShopTest extends WordSpec with ShouldMatchers {
     
     "My Paintshop" should {
+        
         "fulfill a simple order from one customer who wants 1->G" in {
             new PaintShop(1)(List(Map(1 -> GLOSS))) should be (List(GLOSS))
         } 
@@ -31,21 +32,25 @@ class PaintShopTest extends WordSpec with ShouldMatchers {
         } 
 
         "determine if a particular batch fulfills a given order" in {
-            new PaintShop(3).isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> MATTE, 2 -> GLOSS, 3-> GLOSS))) should be (true)
-            new PaintShop(3).isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> GLOSS, 2 -> GLOSS, 3-> GLOSS))) should be (false)
+            val ps = new PaintShop(3)
+            
+            ps.isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> MATTE, 2 -> GLOSS, 3-> GLOSS))) should be (true)
+            ps.isBatchSuitable(List(MATTE, MATTE, MATTE), List(Map(1 -> GLOSS, 2 -> GLOSS, 3-> GLOSS))) should be (false)
         }
+        
         "generate all combinations of MATTE and GLOSS for batchsize = 1" in {
             generateBatches(1) should have size 2
             generateBatches(1) should contain (List(MATTE))
             generateBatches(1) should contain (List(GLOSS))
         }
+        
         "generate all combinations of MATTE and GLOSS for batchsize = 2" in {
             val combos = generateBatches(2)
             combos should have size 4
-            combos should contain (List(MATTE, MATTE))
-            combos should contain (List(MATTE, GLOSS))
-            combos should contain (List(GLOSS, MATTE))
-            combos should contain (List(GLOSS, GLOSS))
+            combos(3) should be (List(MATTE, MATTE))
+            combos(2) should be (List(MATTE, GLOSS))
+            combos(1) should be (List(GLOSS, MATTE))
+            combos(0) should be (List(GLOSS, GLOSS))
         }
     }
 

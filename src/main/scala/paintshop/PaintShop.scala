@@ -20,22 +20,26 @@ object PaintShop {
 class PaintShop(batchSize: Int) {
     import PaintShop._
     
-    val allBatches = generateBatches(batchSize)
+    val allPossibleBatches = generateBatches(batchSize)
     
     def isBatchSuitable(batch: List[PaintType], orders: List[CustomerOrder]) : Boolean = {
         if (batch.length == 0 || orders.isEmpty) false
-        else (orders.forall(order => order.exists({ case (colour, paintType) => batch.contains(paintType)})))
+        else (orders.forall(order => order.exists({
+                case (colour, paintType) => batch(colour-1) == paintType
+            }
+        )))
     }
     
-    def apply(orders: List[CustomerOrder]): List[Char] = {
-        def findBestBatch(batches: List[List[PaintType]]): List[PaintType] = {
-            if (batches.isEmpty) Nil
-            else {
-                if (isBatchSuitable(batches.head, orders)) batches.head
-                else findBestBatch(batches.tail)
-            }
+    def findBestBatch(batches: List[List[PaintType]], orders: List[CustomerOrder]): List[PaintType] = {
+        if (batches.isEmpty) Nil
+        else {
+            if (isBatchSuitable(batches.head, orders)) batches.head
+            else findBestBatch(batches.tail, orders)
         }
-        findBestBatch(allBatches)
+    }
+
+    def apply(orders: List[CustomerOrder]): List[Char] = {
+        findBestBatch(allPossibleBatches, orders)
     }
 
 }
