@@ -1,45 +1,44 @@
 package paintshop
 
-object PaintShop {
-    type PaintType = Char
-    type CustomerOrder = Map[Int, PaintType]
-    
-	val MATTE = 'M'
-	val GLOSS = 'G'
-    
-    def generateBatches(batchSize: Int): List[List[PaintType]] = {
-        if (batchSize == 0) List()
-        else if (batchSize == 1) List[PaintType](GLOSS) :: List[PaintType](MATTE) :: Nil
-        else {        
-        	val rest = generateBatches(batchSize-1)
-        	rest.map(b => GLOSS :: b) ::: rest.map(b => MATTE :: b)
-        }
-    }
-}
+import paintshop.BatchFinder._
+import scala.io.Source
 
-class PaintShop(batchSize: Int) {
-    import PaintShop._
+object PaintShop extends App {
     
-    val allPossibleBatches = generateBatches(batchSize)
-    
-    def isBatchSuitable(batch: List[PaintType], orders: List[CustomerOrder]) : Boolean = {
-        if (batch.length == 0 || orders.isEmpty) false
-        else (orders.forall(order => order.exists({
-                case (colour, paintType) => batch(colour-1) == paintType
-            }
-        )))
+    def missingInputFile(): Unit = {
+        println("Please specify an input test file as a command line argument")
     }
     
-    def findBestBatch(batches: List[List[PaintType]], orders: List[CustomerOrder]): List[PaintType] = {
-        if (batches.isEmpty) Nil
+    def illegalInput(): Unit = {
+        println("Please specify an input test file as a command line argument")
+        println("Sample input file: ")
+        println("\n5")
+        println("1M 3G 5G")
+        println("2G 3M 4G")
+        println("5M")
+    }
+    
+    
+    
+    override def main (args: Array[String]) {
+        
+        if (args.length < 2) missingInputFile()
         else {
-            if (isBatchSuitable(batches.head, orders)) batches.head
-            else findBestBatch(batches.tail, orders)
+            val orders = readFile(args(1))
+            orders match {
+                case None => illegalInput()
+                case Some((batchSize, customerOrders)) => println(new BatchFinder(batchSize)(customerOrders))
+            }
         }
     }
-
-    def apply(orders: List[CustomerOrder]): List[Char] = {
-        findBestBatch(allPossibleBatches, orders)
-    }
-
+    
+    def readFile(filename: String): Option[(Int, List[CustomerOrder])] = {
+        val f = new java.io.File(filename)
+        if (!f.exists()) None
+        else {
+            val lines = Source.fromFile(f).getLines()
+            Some(5, List(Map(1 -> MATTE, 3 -> GLOSS, 5-> GLOSS), Map(2->GLOSS, 3->MATTE, 4-> GLOSS), Map(5->MATTE)))
+        }
+        
+    } 
 }
